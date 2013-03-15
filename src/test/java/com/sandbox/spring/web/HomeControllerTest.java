@@ -13,24 +13,27 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class HomeControllerTest {
-	private static final Logger logger = LoggerFactory.getLogger(HomeControllerTest.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(HomeControllerTest.class);
 
 	@Autowired
 	private ApplicationContext applicationContext;
 
 	@Autowired
-	private HomeController homeController;
-
+	private RequestMappingHandlerAdapter handlerAdapter;
+	 
+	@Autowired
+	private RequestMappingHandlerMapping handlerMapping;
+	
+	
 	private MockHttpServletRequest request; // http request Mock Object
 	private MockHttpServletResponse response; // http responce Mock Object
-	private AnnotationMethodHandlerAdapter handlerAdapter; // handles annotation
-															// controller
-															// methods
 
 	@Before
 	public void setUp() throws Exception {
@@ -39,8 +42,6 @@ public class HomeControllerTest {
 
 		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
-		handlerAdapter = new AnnotationMethodHandlerAdapter();
-
 		logger.info("Setup END");
 	}
 
@@ -53,14 +54,14 @@ public class HomeControllerTest {
 	@Test
 	public void testHomeController() throws Exception {
 
-		request.setRequestURI("/"); // controller uri.
-		request.setMethod("GET"); // http mehtod eg GET POST.
-
-		final ModelAndView mav = handlerAdapter.handle(request, response, homeController);
+		this.request.setRequestURI("/"); // controller uri.
+		this.request.setMethod("GET"); // http mehtod eg GET POST.
+		
+		final Object handler = this.handlerMapping.getHandler(this.request).getHandler();
+		final ModelAndView mav = handlerAdapter.handle(this.request, this.response, handler);
 		logger.info("Controller call");
 
 		Assert.assertEquals(mav.getViewName(), "home");
-
 	}
 
 }
